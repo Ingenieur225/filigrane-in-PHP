@@ -1,0 +1,51 @@
+// Get image info
+$img_ = getimagesize($image_1["tmp_name"]);
+$image_1 = $_FILES['image'];
+
+if( move_uploaded_file($image_1["tmp_name"], $get_fille_1)){
+
+    $watermarkImage = WWW_ROOT.'/assets/PIXO/PIXO_filigrane_.png';
+    $jpgQuality = -1; // Pour réduire la taille de l'image mais de qualité inférieure
+    $jpgQuality = 100; // Pour une qualité supérieure mais augment la taille
+
+    $watermark= imagecreatefrompng($watermarkImage);
+    $watermark_width=imagesx($watermark);
+    $watermark_height=imagesy($watermark);
+
+    // $img_[0]  2048
+    // $img_[1]  1357
+    // $watermark_width  150
+    // $watermark_height 75
+
+    // Defines watermark margin
+    if($img_[0] > 1600 && $img_[1] > 1200) { $margin_right = $img_[0] - $watermark_width - 1150; } else { $margin_right = $img_[0] - $watermark_width - 350;}
+    if($img_[0] > 1600 && $img_[1] > 1200) { $margin_bottom = $img_[1] - $watermark_height - 750; } else { $margin_bottom = $img_[1] - $watermark_height - 300;}
+
+    $createFunction = $this->_getCreateFunction($img_['mime']);
+    $finishFunction = $this->_getFinishFunction($img_['mime']);
+    if (false === $createFunction || false === $finishFunction) {
+        return false;
+    }
+
+    if ($img_[0] > 1600 && $img_[1] > 1200) {
+
+        // Generate image with watermark
+        $src = WWW_ROOT.'image_offres/'.$imagename1;
+        $image = $imagename_1;
+        imagecopy($image, $watermark, $margin_right, $margin_bottom, 0, 0, $watermark_width, $watermark_height);
+    }
+    else {
+        // Generate image with watermark
+        $src = WWW_ROOT.'image_offres/'.$imagename_1;
+        $image = $createFunction($src);
+        imagecopy($image, $watermark, $margin_right, $margin_bottom, 0, 0, $watermark_width, $watermark_height);
+    }
+
+
+    // Replace the original image with the new image with watermark
+    if ($img_['mime'] == 'image/jpeg' || $img_['mime'] == 'image/pjpeg'){
+        $finishFunction($image, $src, (int) $jpgQuality);
+    } else {
+        $finishFunction($image, $src);
+    }
+}
